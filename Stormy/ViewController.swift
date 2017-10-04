@@ -15,17 +15,43 @@ class ViewController: UIViewController {
     @IBOutlet weak var currentPrecipitationLabel: UILabel!
     @IBOutlet weak var currentWeatherIcon: UIImageView!
     @IBOutlet weak var currentSummaryLabel: UILabel!
-    @IBOutlet weak var refreshButton: UIButton! 
+    @IBOutlet weak var refreshButton: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    
+    @IBAction func getCurrentWeather() {
+        
+        toggleRefreshAnimation(on: true)
+        let coordinate = Coordinate(latitude: 55.676098, longitude: 12.568337)
+        
+        client.getCurrentWeather(at: coordinate) { [unowned self] currentWeather, error in
+            if let currentWeather = currentWeather {
+                let viewModel = CurrentWeatherViewModel(model: currentWeather)
+                self.displayWeather(using: viewModel)
+                self.toggleRefreshAnimation(on: false)
+            } else {
+                print(error)
+            }
+        }
+    }
+    
+    
+    func toggleRefreshAnimation(on: Bool) {
+            refreshButton.isHidden = on
+            
+            if on {
+                activityIndicator.startAnimating()
+            } else {
+                activityIndicator.stopAnimating()
+            }
+        }
+        
+
+    
+    let client = DarkSkyAPIClient()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        
-        let currentWeather = CurrentWeather(temperature: 14, humidity: 0.8, precipProbabilty: 0.1, summary: "It's getting hot in here..!", icon: "clear-day")
-        let currentWeatherViewModel = CurrentWeatherViewModel(model: currentWeather)
-        
-        displayWeather(using: currentWeatherViewModel)
         
         
     }
